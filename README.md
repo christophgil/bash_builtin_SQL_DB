@@ -9,8 +9,8 @@ SYNOPSIS
 ========
 
 
-  db=/tmp/my_test_sqlite3.db
-  cg_sqlite  -\>variable-for-result  -D <database file>  'SQL_Statements;'
+    db=/tmp/my_test_sqlite3.db
+    cg_sqlite  -\>variable-for-result  -D <database file>  'SQL_Statements;'
 
 
 
@@ -77,11 +77,11 @@ or
 Before the builtins can be used, the so files  need to be loaded.
 At the beginning of a script there should be a line like
 
-  enable -f ~/compiled/bashbuiltin_cg_sqlite.so   cg_sqlite
+    enable -f ~/compiled/bashbuiltin_cg_sqlite.so   cg_sqlite
 
 or
 
-  enable -f ~/compiled/bashbuiltin_cg_psql.so   cg_psql
+    enable -f ~/compiled/bashbuiltin_cg_psql.so   cg_psql
 
 
 A full documentation is printed with
@@ -97,16 +97,16 @@ or
 
 ## Options
 
-        -D  <database file or connection info, respectively>
+    -D  <database file or connection info, respectively>
 
-         ->  <Name of variable>          The variable will hold the results. It is an array, unless  option '-1' is given. The '>' sign needs to be quoted with a backslash
+    ->  <Name of variable>          The variable will hold the results. It is an array, unless  option '-1' is given. The '>' sign needs to be quoted with a backslash
 
-         -d  $'\t\n'                     Delimiter of query result for columns and for rows. It is a string of length 1 or 2.  You might use vertical bar:  -d '|'
+    -d  $'\t\n'                     Delimiter of query result for columns and for rows. It is a string of length 1 or 2.  You might use vertical bar:  -d '|'
 
-         -l  <Max number of results>     Default value: Unlimited for stdout.  1024 for results stored in an array.
+    -l  <Max number of results>     Default value: Unlimited for stdout.  1024 for results stored in an array.
 
-         -1                              Return not more than one result. If the result is stored in a variable then it will be a plain variable rather than an array.
+    -1                              Return not more than one result. If the result is stored in a variable then it will be a plain variable rather than an array.
 
-         -V                              Print version.  Can be used to check available of the builtin.
+    -V                              Print version.  Can be used to check available of the builtin.
 
-         -v                              Verbose output to stderr.
+    -v                              Verbose output to stderr.
