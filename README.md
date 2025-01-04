@@ -95,9 +95,9 @@ or
 
 
 
-##OPTIONS
+## Options
 
-        -D  <database file>   Existing or not yet existing database file. If an absolute path is provided, non-existing  parent folders will be created.
+        -D  <database file or connection info, respectively>
 
          ->  <Name of variable>          The variable will hold the results. It is an array, unless  option '-1' is given. The '>' sign needs to be quoted with a backslash
 
