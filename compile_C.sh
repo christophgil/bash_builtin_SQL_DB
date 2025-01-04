@@ -49,11 +49,6 @@ main(){
 
         echo "To activate the plugins in bash please install sudo ${ANSI_BLACK}${ANSI_FG_GREEN}apt-get install bash-builtins$ANSI_RESET. Then run in bash:"
         echo -e  "${ANSI_BLACK}${ANSI_FG_GREEN}bash\nbb='$(echo $builtins)'\nenable -d  \$bb 2>/dev/null; enable -f $out \$bb" $ANSI_RESET
-        echo "a=(u v w x y z 1 2 3 )"
-        echo -e "cg_sqlite -@ a 1 2 a b"
-        echo 'echo ${a[@]}'
-
-        echo 'cg_sqlite -n /tmp/my_sqlite3_test.db  -@ array_variable  ' "'"'SELECT * FROM tbl;'"'"'; echo "${array_variable[@]}"'
 
     fi
 }

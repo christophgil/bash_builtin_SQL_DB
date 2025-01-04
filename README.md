@@ -91,3 +91,22 @@ A full documentation is printed with
 or
 
     help cg_sqlite
+
+
+
+
+##OPTIONS
+
+        -D  <database file>   Existing or not yet existing database file. If an absolute path is provided, non-existing  parent folders will be created.
+
+         ->  <Name of variable>          The variable will hold the results. It is an array, unless  option '-1' is given. The '>' sign needs to be quoted with a backslash
+
+         -d  $'\t\n'                     Delimiter of query result for columns and for rows. It is a string of length 1 or 2.  You might use vertical bar:  -d '|'
+
+         -l  <Max number of results>     Default value: Unlimited for stdout.  1024 for results stored in an array.
+
+         -1                              Return not more than one result. If the result is stored in a variable then it will be a plain variable rather than an array.
+
+         -V                              Print version.  Can be used to check available of the builtin.
+
+         -v                              Verbose output to stderr.
