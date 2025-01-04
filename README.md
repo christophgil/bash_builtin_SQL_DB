@@ -67,11 +67,11 @@ The enclosed compile script generates shared object files with the ending ".so".
 The script compile_C.sh  works for Linux. For other operation systems, the instructions and the script will  be adapted very soon.
 
 
-  compile_C.sh bashbuiltin_cg_psql.c
+    compile_C.sh bashbuiltin_cg_psql.c
 
 or
 
-  compile_C.sh bashbuiltin_cg_sqlite.c
+    compile_C.sh bashbuiltin_cg_sqlite.c
 
 
 Before the builtins can be used, the so files  need to be loaded.
@@ -91,4 +91,3 @@ A full documentation is printed with
 or
 
     help cg_sqlite
-# bash_builtin_SQL_DB
