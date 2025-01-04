@@ -3,7 +3,7 @@
 NAME
 ====
 
-**cg_psql**  and **cg_sqlite** — Bash builtins for using Postgres and Sqlite3 SQL databases in Bash scripts.
+**cg_psql**  and **cg_sqlite** — Bash builtins for using Postgres and SQLite SQL databases in Bash scripts.
 
 SYNOPSIS
 ========
@@ -25,7 +25,7 @@ Within Bash scripts, the external programs /usr/bin/psql, /usr/bin/sqlite3 and /
 typically used to access SQL database.  For each DB access, the respective  program is started and a new
 connection to the database is established and  closed afterwards.  The standard output is captured and processed.
 
-Here we provide bash-builtins for Sqlite3 and Postgres that can do the same with less overhead.
+Here we provide bash-builtins for SQLite and Postgres that can do the same with less overhead.
 Simple queries will be orders of magnitudes  faster.
 
 Please send a request-for-feature if you need a Bash builin for other database systems like Mysql.
