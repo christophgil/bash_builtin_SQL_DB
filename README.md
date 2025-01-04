@@ -99,14 +99,17 @@ or
 
     -D  <database file or connection info, respectively>
 
-    ->  <Name of variable>          The variable will hold the results. It is an array, unless  option '-1' is given. The '>' sign needs to be quoted with a backslash
+    ->  <Name of variable>        Store query results in the array variable.
+                                  The '>' sign needs to be quoted with a backslash
 
-    -d  $'\t\n'                     Delimiter of query result for columns and for rows. It is a string of length 1 or 2.  You might use vertical bar:  -d '|'
+    -d  $'\t\n'                   Delimiter of query result for columns (1st character) and rows (optional 2nd character)
+                                  Consider vertical bar as column seperator: -d '|'",
 
-    -l  <Max number of results>     Default value: Unlimited for stdout.  1024 for results stored in an array.
+    -l  <Max number of results>   Default value for stdout: Unlimited.  Default value for results stored in an array: 1024
 
-    -1                              Return not more than one result. If the result is stored in a variable then it will be a plain variable rather than an array.
+    -1                            Print the first result only or store it in a plain SHELL variable rather than an array variable
+                                  Best combined with the SQL clause 'LIMIT 1'
 
-    -V                              Print version.  Can be used to check available of the builtin.
+    -V                            Print version.  Can be used to check available of the builtin
 
-    -v                              Verbose output to stderr.
+    -v                            Increase verbosity. Can occure multiple times
