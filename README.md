@@ -3,7 +3,7 @@
 NAME
 ====
 
-**cg_psql**  **cg_sqlite** — Loadable Bash builtins for using SQL databases in Bash scripts.
+**cg_psql**  and **cg_sqlite** — Bash builtins for using Postgres and Sqlite3 SQL databases in Bash scripts.
 
 SYNOPSIS
 ========
@@ -38,16 +38,16 @@ It seems to work, but needs more testing.
 ## Example 1
 
 
-  db=/tmp/my_test_sqlite3.db
-  cg_sqlite  -D $db  'CREATE TABLE IF NOT EXISTS tbl (id int,t TEXT);'
-  cg_sqlite  -D $db  "INSERT INTO tbl(id,t) VALUES($RANDOM,'$(date)');"
-  cg_sqlite  -D $db  'SELECT * FROM tbl;'  # Result to stdout
+    db=/tmp/my_test_sqlite3.db
+    cg_sqlite  -D $db  'CREATE TABLE IF NOT EXISTS tbl (id int,t TEXT);'
+    cg_sqlite  -D $db  "INSERT INTO tbl(id,t) VALUES($RANDOM,'$(date)');"
+    cg_sqlite  -D $db  'SELECT * FROM tbl;'  # Result to stdout
 
-  cg_sqlite  -D $db  -\> array_variable 'SELECT * FROM tbl;'
-  echo "${array_variable[@]}"
+    cg_sqlite  -D $db  -\> array_variable 'SELECT * FROM tbl;'
+    echo "${array_variable[@]}"
 
-  cg_sqlite  -D $db  -\> plain_variable -1  'SELECT * FROM tbl;'
-  echo "$plain_variable";
+    cg_sqlite  -D $db  -\> plain_variable -1  'SELECT * FROM tbl;'
+    echo "$plain_variable";
 
 
 
