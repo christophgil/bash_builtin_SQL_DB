@@ -10,8 +10,9 @@ SYNOPSIS
 
 
     db=/tmp/my_test_sqlite3.db
-    cg_sqlite  -\> variable-for-result  -D <database file>  'SQL_Statements;'
-
+    local result=''
+    cg_sqlite  -\> result  -D <database file>  'SQL_Statements;'
+    echo "Results: ${#result[@]}    First: ${#result[0]}"
 
 
 
