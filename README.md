@@ -148,7 +148,7 @@ or
 
     -l  <Max number of results>   Default value for stdout: Unlimited.  Default value for results stored in an array: 1024
 
-    -1                            Print the first result only or store it in a plain SHELL variable rather than an array variable
+    -1                            Print the first result or store the first result in a plain SHELL variable rather than an array variable
                                   Best combined with the SQL clause 'LIMIT 1'
 
     -V                            Print version.  Can be used to check available of the builtin
