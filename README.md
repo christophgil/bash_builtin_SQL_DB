@@ -26,7 +26,7 @@ integrated driver as in other programming languages.
 
 The CLI programs /usr/bin/psql or /usr/bin/sqlite3 are called for each query. There is a large
 overhead. External programs  are started to establish a transient connection to
-the database. Less delay  comes from  capturing the output which involves the relative expensive system call fork().
+the database. Less delay  comes from  capturing the output which involves the system call fork().
 
 These are  bash-builtins for SQLite and Postgres that can do the same with less overhead.
 Simple queries will be orders of magnitudes faster.
