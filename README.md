@@ -95,7 +95,7 @@ Install  software packages:
     sudo port install  bash
 
     port  search  postgresql | grep '(databases)' # Find out package name of current postgresql
-    port install  postgresql94  libpqxx           # Replace by current postgresqlXX version
+    port install  postgresql94  libpqxx           # Replace postgresql94 by current postgresql package name
           or
     port install  sqlite3
 
