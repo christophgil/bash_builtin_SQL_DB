@@ -21,26 +21,24 @@ DESCRIPTION
 
 ## Summary
 
-Bash is the default command line interface for Apple MacOSX, Linux, OpenSolaris and several BSDs.
-Using SQL databases intensively in Bash scripts is slow because there is no
-integrated driver as in other programming languages.
+Bash is the most widely used UNIX shell.  Using SQL databases intensively in Bash scripts is slow
+because there is no integrated command for accessing SQL databases as in other programming
+languages.
 
-The CLI programs /usr/bin/psql or /usr/bin/sqlite3 are called for each query. There is a large
-overhead. External programs  are started to establish a transient connection to
-the database. Less delay  comes from  capturing the output which involves the system call fork().
+Since the CLI programs /usr/bin/psql or /usr/bin/sqlite3 are called for each query, there is a large
+overhead.
+
 
 cg_sqlite and cg_psql are fast bash-builtins for SQLite and Postgresql with less overhead.
 
 
-Please send a request-for-feature if you need a Bash builtin for other database systems like MySQL.
+Other DBs like  MySQL and  DB2 are not (yet) supported. You can send a request-for-feature.
 
 ## Status
 
-It seems to work, but needs more testing.
-
+It seems to work. Not extensively tested yet.
 
 ## Benchmarks
-
 
 Run SQL_benchmark.sh without parameter for  instructions.
 
