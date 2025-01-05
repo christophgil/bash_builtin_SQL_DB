@@ -156,3 +156,13 @@ or
     -V                            Print version.  Can be used to check available of the builtin
 
     -v                            Increase verbosity. Can occur multiple times
+
+
+
+## Related:
+
+  - https://github.com/PietroFara/sqlite_lib.bash
+  - https://github.com/koffiebaard/bashql
+  - https://github.com/cjungmann/bash_sqlite
+  - https://github.com/axelhahn/bash_sqlite
+  - https://github.com/edean11/BashDB
