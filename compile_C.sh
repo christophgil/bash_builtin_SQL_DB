@@ -23,12 +23,10 @@ main(){
     SEARCH_INCLUDE_FILES='/usr/include/postgresql  /usr/lib /opt/local/include /opt/local/lib'
     ((is_bashbuiltin)) && as='' && SEARCH_INCLUDE_FILES+=' /usr/lib/bash /usr/include/bash /usr/include/bash/include /usr/include/bash/builtins \
      /opt/local/include/bash /opt/local/include/bash/include /opt/local/include/bash/builtins '
-
     if [[ $includes == *\<libpq-fe.h\>* ]]; then
         local inc=$(find /opt/local/include/postgresql* -name libpq-fe.h 2>/dev/null)
         SEARCH_INCLUDE_FILES+=" ${inc%/*} "
     fi
-
     IPATHS=$(dirpaths_with_pfx ' -I' $SEARCH_INCLUDE_FILES)
     export ASAN_OPTIONS=quarantine_size_mb=1
     export PATH=/usr/lib/llvm-20/bin/:$PATH
