@@ -25,10 +25,10 @@ Using SQL databases intensively in Bash scripts is slow because there is no
 integrated driver as in other programming languages.
 
 The CLI programs /usr/bin/psql or /usr/bin/sqlite3 are called for each query. There is a large
-overhead of about 30 ms because these are external programs which are started to establish a transient connection to
-the database. Less delay  comes from  capturing the output which requires the expensive system call fork().
+overhead. External programs  are started to establish a transient connection to
+the database. Less delay  comes from  capturing the output which involves the relative expensive system call fork().
 
-Here we provide bash-builtins for SQLite and Postgres that can do the same with less overhead.
+These are  bash-builtins for SQLite and Postgres that can do the same with less overhead.
 Simple queries will be orders of magnitudes faster.
 
 Please send a request-for-feature if you need a Bash builin for other database systems like Mysql.
