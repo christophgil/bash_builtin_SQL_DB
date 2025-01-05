@@ -21,18 +21,37 @@ DESCRIPTION
 ## Summary
 
 Bash is the default command line interface for Apple MacOSX, Linux, OpenSolaris and several BSDs.
-Within Bash scripts, the external programs /usr/bin/psql, /usr/bin/sqlite3 and /usr/bin/mysql are
-typically used to access SQL database.  For each DB access, the respective  program is started and a new
-connection to the database is established and  closed afterwards.  The standard output is captured and processed.
+Using SQL databases intensively in Bash scripts is slow because there is no
+integrated driver as in other programming languages.
+
+The CLI programs /usr/bin/psql or /usr/bin/sqlite3 are called for each query. There is a large
+overhead of about 30 ms because these are external programs which are started to establish a transient connection to
+the database. Less delay  comes from  capturing the output which requires the expensive system call fork().
 
 Here we provide bash-builtins for SQLite and Postgres that can do the same with less overhead.
-Simple queries will be orders of magnitudes  faster.
+Simple queries will be orders of magnitudes faster.
 
 Please send a request-for-feature if you need a Bash builin for other database systems like Mysql.
 
 ## Status
 
 It seems to work, but needs more testing.
+
+
+## Benchmarks
+
+
+Run SQL_benchmark.sh without parameter for  instructions.
+
+10,000 simple SELECT queries - lower values are better:
+
+    /usr/bin/pgsql          811 seconds
+    /usr/bin/sqlite          59 seconds
+
+    cg_psql   bashbuiltin   1.3 seconds
+    cg_sqlite bashbuiltin   0.5 seconds
+
+
 
 
 ## Example 1
