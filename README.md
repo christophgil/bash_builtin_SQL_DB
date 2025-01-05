@@ -28,8 +28,8 @@ The CLI programs /usr/bin/psql or /usr/bin/sqlite3 are called for each query. Th
 overhead. External programs  are started to establish a transient connection to
 the database. Less delay  comes from  capturing the output which involves the system call fork().
 
-cg_sqlite and cg_psql are  bash-builtins for SQLite and Postgres that can do the same with less overhead.
-Simple queries will be orders of magnitudes faster.
+cg_sqlite and cg_psql are fast bash-builtins for SQLite and Postgres with less overhead.
+
 
 Please send a request-for-feature if you need a Bash builin for other database systems like Mysql.
 
