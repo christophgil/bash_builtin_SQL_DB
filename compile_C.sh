@@ -20,29 +20,40 @@ main(){
            $includes == *\"bashtypes.h\"* ||
            $includes == *\"bashgetopt.h\"* ]] && echo "Compiling a bash builtin" && is_bashbuiltin=1
         local as="-O0 -fsanitize=address -fno-omit-frame-pointer"
-    SEARCH_INCLUDE_FILES='/usr/include/postgresql '
-    ((is_bashbuiltin)) && as='' && SEARCH_INCLUDE_FILES+=' /usr/lib/bash /usr/include/bash /usr/include/bash/include /usr/include/bash/builtins '
+    SEARCH_INCLUDE_FILES='/usr/include/postgresql  /usr/lib /opt/local/include /opt/local/lib'
+    ((is_bashbuiltin)) && as='' && SEARCH_INCLUDE_FILES+=' /usr/lib/bash /usr/include/bash /usr/include/bash/include /usr/include/bash/builtins \
+     /opt/local/include/bash /opt/local/include/bash/include /opt/local/include/bash/builtins '
+
+    if [[ $includes == *\<libpq-fe.h\>* ]]; then
+        local inc=$(find /opt/local/include/postgresql* -name libpq-fe.h 2>/dev/null)
+        SEARCH_INCLUDE_FILES+=" ${inc%/*} "
+    fi
+
     IPATHS=$(dirpaths_with_pfx ' -I' $SEARCH_INCLUDE_FILES)
     export ASAN_OPTIONS=quarantine_size_mb=1
     export PATH=/usr/lib/llvm-20/bin/:$PATH
     export PATH=/usr/lib/llvm-14/bin/:$PATH
     $CCOMPILER --version
     # -pedantic-errors
-    local stack='-fno-stack-protector -z execstack'  libs=''
+    local libs='' stack='-fno-stack-protector'
+    [[ ${OSTYPE,,} == linux* ]] && stack+=' -z execstack'
+
+
     [[ $includes == *\<sqlite3.h\>* ]] && libs+=' -lsqlite3 '
     [[ $includes == *\<pthread.h\>* ]] && libs+=' -lpthread '
-        [[ $includes == *\<libpq-fe.h\>* ]] && libs+=' -lpq '
+    [[ $includes == *\<libpq-fe.h\>* ]] && libs+=' -lpq '
     local name=${src##*/}
     name=${name%.c}
     local out=~/compiled/$name  mk_shared_object=''  is_so=is_bashbuiltin
-    mkdir -p ${out/*}
+    echo "out: $out"
+    mkdir -p ${out%/*}
     [[ $name == lib* ]] && is_so=1
     ((is_so)) && out+=.so && mk_shared_object='-shared -undefined dynamic_lookup  -fPIC'
     local cmd="$CCOMPILER $mk_shared_object $stack -Wno-string-compare -Wno-strict-prototypes -g $as -rdynamic $IPATHS  $src  $libs -o $out"
     echo $cmd
     rm $out 2>/dev/null
     $cmd
-    ls -l $out && rhash --printf='%C\n' --crc32 $out
+    ls -l $out
     if ((is_bashbuiltin)); then
         local builtins="$(sed -n -e 's|^struct builtin \(.*\)_struct.*$|\1|p' -e 's|^MY_BASHBUILTIN(\(\w*\).*$|\1|p'  $src)"
         [[ -z $builtins ]] && builtins=$(sed -n -e 's|^#define NAME \(.*\)|\1|p' $src);

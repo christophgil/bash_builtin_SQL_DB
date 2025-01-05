@@ -5,9 +5,6 @@
 ////////////////////////////////////////////////////////////////
 
 #define _GNU_SOURCE 1
-#undef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 1
-
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
@@ -16,7 +13,7 @@
 #include <stdbool.h>
 #include <getopt.h>
 #include <unistd.h>
-#include "loadables.h"
+#include "bash/loadables.h"
 
 
 

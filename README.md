@@ -3,14 +3,14 @@
 NAME
 ====
 
-**cg_psql**  and **cg_sqlite** — Bash builtins for using Postgres and SQLite SQL databases in Bash scripts.
+**cg_psql**  and **cg_sqlite** — Bash builtins for using Postgresql and SQLite SQL databases in Bash scripts.
 
 SYNOPSIS
 ========
 
 
     db=/tmp/my_test_sqlite3.db
-    local result=''
+    result=''
     cg_sqlite  -\> result  -D <database file>  'SQL_Statements;'
     echo "Results: ${#result[@]}    First: ${#result[0]}"
 
@@ -29,10 +29,10 @@ The CLI programs /usr/bin/psql or /usr/bin/sqlite3 are called for each query. Th
 overhead. External programs  are started to establish a transient connection to
 the database. Less delay  comes from  capturing the output which involves the system call fork().
 
-cg_sqlite and cg_psql are fast bash-builtins for SQLite and Postgres with less overhead.
+cg_sqlite and cg_psql are fast bash-builtins for SQLite and Postgresql with less overhead.
 
 
-Please send a request-for-feature if you need a Bash builin for other database systems like Mysql.
+Please send a request-for-feature if you need a Bash builtin for other database systems like MySQL.
 
 ## Status
 
@@ -71,21 +71,45 @@ Run SQL_benchmark.sh without parameter for  instructions.
 
 
 
-## Installation
+## Installation of dependencies
 
 Install  software packages:
 
        - gcc or clang or  build-essential
        - bash-builtins
        - The respective database libraries and header files
-          + libpq-dev for cg_psql (i.e. Postgres)
+          + libpq-dev for cg_psql (i.e. Postgresql)
           + sqlite3-dev for cg_sqlite
+### Ubuntu or Debian Linux:
+
+     apt-get install build-essential bash-builtins
+
+     apt-get install postgresql libpq-dev
+            or
+     apt-get install sqlite3 sqlite3-dev
 
 
 
-The enclosed compile script generates shared object files with the ending ".so".
-The script compile_C.sh  works for Linux. For other operation systems, the instructions and the script will  be adapted very soon.
 
+### MacOSX
+    sudo port selfupdate
+
+    sudo port install  bash
+
+    port  search  postgresql | grep '(databases)' # Find out package name here postgresql96
+    port install  postgresql94  libpqxx      # Take highest number. I do not know how to say install latest
+          or
+    port install  sqlite3
+
+
+Important: The builtins will work with  the bash version installed by Mac ports  /opt/local/bin/bash, but not with  /bin/bash.
+You might need to change to the newly installed Bash.
+
+
+
+## Compilation and Installation
+
+The enclosed compile script generates shared object files with the ending *.so*.
 
     compile_C.sh bashbuiltin_cg_psql.c
 
@@ -94,17 +118,16 @@ or
     compile_C.sh bashbuiltin_cg_sqlite.c
 
 
-Before the builtins can be used, the so files  need to be loaded.
-At the beginning of a script there should be a line like
+Builtins need to be loaded into the Bash instance with *enable*.  The following commands can be run in the
+current interactive shell or can be placed at the top of a Bash script.
 
     enable -f ~/compiled/bashbuiltin_cg_sqlite.so   cg_sqlite
 
 or
-
     enable -f ~/compiled/bashbuiltin_cg_psql.so   cg_psql
 
 
-A full documentation is printed with
+When they are loaded successfully, the *help* command will print the full documentation
 
     help cg_psql
 
@@ -123,7 +146,7 @@ or
                                   The '>' sign needs to be quoted with a backslash
 
     -d  $'\t\n'                   Delimiter of query result for columns (1st character) and rows (optional 2nd character)
-                                  Consider vertical bar as column seperator: -d '|'",
+                                  Consider vertical bar as column separator: -d '|'",
 
     -l  <Max number of results>   Default value for stdout: Unlimited.  Default value for results stored in an array: 1024
 
@@ -132,4 +155,4 @@ or
 
     -V                            Print version.  Can be used to check available of the builtin
 
-    -v                            Increase verbosity. Can occure multiple times
+    -v                            Increase verbosity. Can occur multiple times
