@@ -40,10 +40,10 @@ static char *_doc[]={
   "     -d  $'\\t\\n'                     Delimiter of query result for columns (1st character) and rows (optional 2nd character)",
   "                                     Consider vertical bar as column seperator: -d '|'","",
   "     -l  <Max number of results>     Default value: Unlimited for stdout.  "STRINGIZE(DEFAULT_MAX_RESULTS)" for results stored in an array","",
-  "     -1                              Print the first result only or store it in a plain SHELL variable rather than an array variable",
+  "     -1                              Print the first result or store the first result in a plain SHELL variable rather than an array",
   "                                     Best used together with the SQL clause 'LIMIT 1'","",
   "     -V                              Print version.  Can be used to check available of the builtin","",
-  "     -v                              Increase verbosity. Can occure multiple times","",
+  "     -v                              Increase verbosity. Can be repeated","",
   (char*)NULL
 };
 

@@ -90,6 +90,9 @@ Install  software packages:
 
 
 ### MacOSX
+
+    You need https://www.macports.org/
+
     sudo port selfupdate
 
     sudo port install  bash
@@ -102,7 +105,9 @@ Install  software packages:
 
 Important: The builtins will work with  the bash version installed by Mac ports  /opt/local/bin/bash, but not with  /bin/bash.
 You might need to change to the newly installed Bash.
+The following shebang line at the top of the script might select the proper Bash version:
 
+     #!/usr/bin/env bash
 
 
 ## Compilation and Installation
@@ -153,7 +158,7 @@ or
 
     -V                            Print version.  Can be used to check available of the builtin
 
-    -v                            Increase verbosity. Can occur multiple times
+    -v                            Increase verbosity. Can be repeated.
 
 
 
