@@ -102,7 +102,7 @@ static int cg_db_builtin_main(const int argc, char *argv[]){
       }
       break;
     case 'H': p->is_header=true; break;
-    case 'D': if (sizeof(p->db)-1<=strlen(optarg)) RETURN_ERROR("Option  -D '"V()"' exceeds length %ld\n",optarg,sizeof(p->db)-1);
+    case 'D': if (sizeof(p->db)-1<=strlen(optarg)) RETURN_ERROR("Option  -D '"V()"' exceeds length %lu\n",optarg,sizeof(p->db)-1);
       strcpy(p->db,optarg); break;
     case '1': p->is_single_result=true; break;
     case 'l': p->max_num_results=atoi(optarg); break;
