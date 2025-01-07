@@ -20,8 +20,7 @@ overhead.
 
 cg_sqlite and cg_psql are fast bash-builtins for SQLite and Postgresql with less overhead.
 
-## Status
-
+**Status**
 Needs more testing.
 
 
