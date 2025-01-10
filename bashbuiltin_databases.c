@@ -8,42 +8,39 @@
   "        "NAMEQ" -D \"$db\"  'CREATE TABLE IF NOT EXISTS tbl (id int,t TEXT);'\n"\
   "        "NAMEQ" -D \"$db\"  \"INSERT INTO tbl(id,t) VALUES($RANDOM,'$(date)');\"\n"\
   "        "NAMEQ" -D \"$db\"  'SELECT * FROM tbl;'  # Result to stdout\n"\
-  "        "NAMEQ" -D \"$db\"  -\\> array_variable 'SELECT * FROM tbl;'; echo \"${array_variable[@]}\"  # Results captured in array variable\n"\
-  "        "NAMEQ" -D \"$db\"  -\\> plain_variable -1  'SELECT * FROM tbl;'; echo \"$plain_variable\";  # Single result in variable\n"
+  "        "NAMEQ" -D \"$db\"  -$  'SELECT * FROM tbl;'; echo \"${array_variable[@]}\"  # Results captured in array variable\n"\
+  "        "NAMEQ" -D \"$db\"  -$  -1  'SELECT * FROM tbl;'; echo \"$plain_variable\";  # Single result in variable\n"
 
 
 static char *_doc[]={
-  ANSI_INVERSE"Accessing SQL Databases in Bash scripts"ANSI_RESET, "", "SYNOPSIS",USAGE(),
-  "", "SUMMARY",
+  ANSI_INVERSE"Accessing SQL Databases in Bash scripts"ANSI_RESET, "", "SYNOPSIS",USAGE()"\n\n"
+  "SUMMARY",
   "  In Bash scripts, "NAMEQ" may replace /usr/bin/"DOC_STAND_ALONE_PROGRAM".",
   "  It is a Bash builtin. Once loaded it stays in memory. ",
   "  It allows for up to "STRINGIZE(CONNECTIONS)" persistent  database connections.",
   "  The maximum number of different databases is encoded in the macro CONNECTIONS and can be increased.",
   "  Advantages of , "NAMEQ" in scripts:",
   "      - Improved performance because there is no overhead by starting an external program and establishing a connection to a database.",
-  "      - The result of queries can be captured directly in array or plain variables.",
-  "", "INSTALLATION",
+  "      - The result of queries can be captured directly in array or plain variables.\n",
+  "INSTALLATION",
   "  Install packages:",
   "     - gcc or clang or  build-essential",
   "     - bash-builtins",
-  "     - "DOC_DEPENDENCIES,
-  "",
+  "     - "DOC_DEPENDENCIES"\n",
   "  The source needs to be compiled. The enclosed compilation script can be used:",
   "     compile_C.sh  "__FILE_NAME__,
   "",
   "  Compilation results in a shared object file with the ending .so.  The builtin is then loaded into  bash with the command",
-  "     enable -f ~/compiled/file.so   "NAMEQ,
-  "", "OPTIONS","",
-  "     -D  <"DOC_DB_NAME_OR_FILE">   "DOC_OPTION_D,  "","",
-  "     ->  <Name of variable>          Store query results in the array variable",
-  "                                     The '>' sign needs to be quoted with a backslash","",
+  "     enable -f ~/compiled/file.so   "NAMEQ"\n",
+  "OPTIONS\n",
+  "     -D  <"DOC_DB_NAME_OR_FILE">   "DOC_OPTION_D"\n\n",
+  "     -$                              Store query results in the array variable 'RETVAL'\n",
   "     -d  $'\\t\\n'                     Delimiter of query result for columns (1st character) and rows (optional 2nd character)",
-  "                                     Consider vertical bar as column seperator: -d '|'","",
-  "     -l  <Max number of results>     Default value: Unlimited for stdout.  "STRINGIZE(DEFAULT_MAX_RESULTS)" for results stored in an array","",
-  "     -1                              Print the first result or store the first result in a plain SHELL variable rather than an array",
-  "                                     Best used together with the SQL clause 'LIMIT 1'","",
-  "     -V                              Print version.  Can be used to check available of the builtin","",
-  "     -v                              Increase verbosity. Can be repeated","",
+  "                                     Consider vertical bar as column seperator: -d '|'\n",
+  "     -l  <Max number of results>     Default value: Unlimited for stdout.  "STRINGIZE(DEFAULT_MAX_RESULTS)" for results stored in an array\n",
+  "     -1                              Print the first result only. Same as '-l 1'. Consider to combine with the SQL clause 'LIMIT 1'\n",
+  "     -V                              Print version.  Can be used to check available of the builtin\n",
+  "     -v                              Increase verbosity. Can be repeated\n",
   (char*)NULL
 };
 
@@ -80,7 +77,7 @@ static void db_connection_for_path(struct struct_parameters *p, struct struct_va
       cc[cc_l].db_l=n_l;
     }
   }else{
-    report_error(RED_ERROR"To many connections %d. Recompile %s with larger value for macro CONNECTIONS!\n",CONNECTIONS),__FILE_NAME__;
+    report_error(RED_ERROR"To many connections %d. Recompile %s with larger value for macro CONNECTIONS!\n",CONNECTIONS,__FILE_NAME__);
   }
 }
 /* ================================================================================ */
@@ -88,11 +85,10 @@ static int cg_db_builtin_main(const int argc, char *argv[]){
   struct struct_parameters para={.delim_col='\t', .delim_row='\n', .verbose=0 }, *p=&para;
   optind=0;
 #define V() ANSI_FG_BLUE"%s"ANSI_RESET
-  for (int opt; (opt=getopt(argc,argv,"HD:d:1l:vV:h>:"))!=-1;){
+  for (int opt; (opt=getopt(argc,argv,"HD:d:1l:vV:h$"))!=-1;){
     switch(opt){
-    case '>':
-      if (sizeof(p->retvar)-1<=strlen(optarg)) RETURN_ERROR("Variable name "V()"too long",optarg);
-      strcpy(p->retvar,optarg);
+    case '$':
+      p->retvar=true;
       if (!p->max_num_results) p->max_num_results=DEFAULT_MAX_RESULTS;
       break;
     case 'd':
@@ -104,7 +100,7 @@ static int cg_db_builtin_main(const int argc, char *argv[]){
     case 'H': p->is_header=true; break;
     case 'D': if (sizeof(p->db)-1<=strlen(optarg)) RETURN_ERROR("Option  -D '"V()"' exceeds length %lu\n",optarg,sizeof(p->db)-1);
       strcpy(p->db,optarg); break;
-    case '1': p->is_single_result=true; break;
+    case '1': p->max_num_results=1; break;
     case 'l': p->max_num_results=atoi(optarg); break;
     case 'V': PRINT_NOTE("Version 0\n"); return 0;
     case 'v': p->verbose++; PRINT_NOTE("verbose: %d\n",p->verbose); break;
@@ -112,7 +108,7 @@ static int cg_db_builtin_main(const int argc, char *argv[]){
     default: builtin_usage();RETURN_ERROR("Wrong option -%c\n",opt);
     }
   }
-  PRINT_DEBUG("db: '"V()"'  retvar: "V()"  delim_col: %d delim_row: %d\n",p->db,p->retvar,p->delim_col,p->delim_row);
+  PRINT_DEBUG("db: '"V()"'  retvar: "V()"  delim_col: %d delim_row: %d\n",p->db,p->retvar?"Yes":"No",p->delim_col,p->delim_row);
   if (!*p->db){ builtin_usage(); RETURN_ERROR("Please specify "DOC_DB_NAME_OR_FILE" with option -D\n"); }
   struct struct_variables var={.result_capacity=1024,.result=malloc(1024)}, *v=&var;
   db_connection_for_path(p,v);
@@ -120,16 +116,11 @@ static int cg_db_builtin_main(const int argc, char *argv[]){
   p->SQLs=argv+optind;
   p->SQLs_l=argc-optind;
   /* From now-on no modifications of p */
-  if (*p->retvar){
-    if (p->is_single_result){
-      if (variable_context) make_local_variable(p->retvar,0);
-    }else{
-      if (!(v->shell_var=find_or_make_array_variable(p->retvar,0))) RETURN_ERROR("Failed find_or_make_array_variable "V()"\n",p->retvar);
-      if (readonly_p(v->shell_var) || noassign_p(v->shell_var)) RETURN_ERROR("Variable "V()" read-only or not assignable",p->retvar);
-      if (!array_p(v->shell_var)) RETURN_ERROR("Not an indexed array: "V(),p->retvar);
+  if (p->retvar){
+      if (!(v->shell_var=find_or_make_array_variable("RETVAL",0))) RETURN_ERROR("Failed find_or_make_array_variable 'RETVAL'\n");
+      if (readonly_p(v->shell_var) || noassign_p(v->shell_var)) RETURN_ERROR("Variable 'RETVAL' read-only or not assignable");
       if (invisible_p(v->shell_var)) VUNSETATTR(v->shell_var,att_invisible);/* no longer invisible */
       array_flush(array_cell(v->shell_var));
-    }
   }
 #undef V
   cg_process_sql(p,v);
@@ -183,7 +174,7 @@ static bool cg_result_append_column(const int column, const char *s,  int s_l, c
 
 static bool cg_result_reset(const struct struct_parameters *p,struct struct_variables *v){
   v->result_l=*v->result=0;
-  const int mx=p->is_single_result?1:p->max_num_results;
+  const int mx=p->max_num_results;
   if (mx && v->result_idx>=mx){
     PRINT_VERBOSE("Reporting only %d of %d results.\n",v->result_idx,mx);
     return false;
@@ -192,17 +183,9 @@ static bool cg_result_reset(const struct struct_parameters *p,struct struct_vari
 }
 /*  Appending the String s to the growing result string stored in struct_variables->result */
 static void cg_result_apply(const int row,const struct struct_parameters *p,struct struct_variables *v){
-  if (*p->retvar){
+  if (p->retvar){
     if (row>=0){
-      if (p->is_single_result){
-        if (variable_context) make_local_variable(p->retvar,0);
-        char *s=v->result?strdup(v->result):NULL;
-        SHELL_VAR *var=bind_variable(p->retvar,s,0);
-        assert(var->value != s); /* Otherwise I would need strdup() */
-        //fprintf(stderr,"p->retvar: %s  s: %s  s: %s %p %p\n",p->retvar,s,var->value, s,var->value );
-      }else{
         bind_array_element(v->shell_var,v->result_idx,v->result,0);
-      }
     }
   }else{
     fputs(v->result,stdout);

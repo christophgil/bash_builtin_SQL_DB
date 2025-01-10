@@ -32,7 +32,7 @@ EOF
                result="$(psql -qAX -d $DB_NAME <<< "$1")"
            }
            i_access(){
-               cg_psql -\> result -D "dbname=$DB_NAME" "$1"
+               cg_psql -$ -D "dbname=$DB_NAME" "$1"
            }
            ;;
         L) enable -f ~/compiled/bashbuiltin_cg_sqlite.so   cg_sqlite || read -r -p "Enter"
@@ -41,7 +41,7 @@ EOF
                result="$(sqlite3 $DB  "$1")"
            }
            i_access(){
-               cg_sqlite -\> result -D $DB "$1"
+               cg_sqlite -$  -D $DB "$1"
            }
            ;;
         *) echo "Parameter 1 must be 'L' or 'P'";;

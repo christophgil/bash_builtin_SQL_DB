@@ -28,23 +28,20 @@ Needs more testing.
 
     db=/tmp/my_test_sqlite3.db
     result=''
-    cg_sqlite  -\> result  -D <database file>  'SQL_Statements;'
-    echo "Results: ${#result[@]}    First: ${#result[0]}"
+    cg_sqlite  -$  -D <database file>  'SQL_Statements;'; aa=("${RETVAL[@]}")
+
+    echo "Results: ${#aa[@]}    First: ${aa[0]:-}   Second: ${aa[1]:-}"
 
 ## Options
 
     -D  <database file or connection info, respectively>
 
-    ->  <Name of variable>        Store query results in the array variable.
-                                  The '>' sign needs to be quoted with a backslash
+    -$                            Store query results in the array variable 'RETVAL' instead of printing to stdout.
 
     -d  $'\t\n'                   Delimiter of query result for columns (1st character) and rows (optional 2nd character)
                                   Consider vertical bar as column separator: -d '|'",
 
     -l  <Max number of results>   Default value for stdout: Unlimited.  Default value for results stored in an array: 1024
-
-    -1                            Print the first result or store the first result in a plain SHELL variable rather than an array variable
-                                  Best combined with the SQL clause 'LIMIT 1'
 
     -V                            Print version.  Can be used to check available of the builtin
 
@@ -59,11 +56,9 @@ Needs more testing.
     cg_sqlite  -D $db  "INSERT INTO tbl(id,t) VALUES($RANDOM,'$(date)');"
     cg_sqlite  -D $db  'SELECT * FROM tbl;'  # Result to stdout
 
-    cg_sqlite  -D $db  -\> array_variable 'SELECT * FROM tbl;'
+    cg_sqlite  -D $db  -$  'SELECT * FROM tbl;'; array_variable=("${RETVAL[@]}")
     echo "${array_variable[@]}"
 
-    cg_sqlite  -D $db  -\> plain_variable -1  'SELECT * FROM tbl;'
-    echo "$plain_variable";
 
 
 ## Benchmarks

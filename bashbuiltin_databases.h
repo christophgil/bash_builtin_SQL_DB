@@ -57,9 +57,8 @@
 
 /* After initialization this will not change */
 struct struct_parameters{
-  char retvar[257];                /* Name of shell variable to store the SQL result or empty String */
+  bool retvar;                  /* Assign variable RETVAL rather than writing to stdout */
   int max_num_results;
-  bool is_single_result;          /* Only one result and  use simple shell variable rather than array */
   bool is_header;               /* Print a line with column names */
   char delim_col, delim_row;      /* Normally \t and \n */
   int verbose;
