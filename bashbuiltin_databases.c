@@ -1,5 +1,7 @@
 /////////////////////////////////////////////////////////////////
 ///  COMPILE_MAIN=bashbuiltin_sqlite.c                        ///
+///  Author: Christoph Gille                                  ///
+///  Licence: GNU                                             ///
 ///  This contains the common part and is included by the     ///
 ///  specific implementations for different database backends ///
 /////////////////////////////////////////////////////////////////
@@ -34,7 +36,7 @@ static char *_doc[]={
   "     enable -f ~/compiled/file.so   "NAMEQ"\n",
   "OPTIONS\n",
   "     -D  <"DOC_DB_NAME_OR_FILE">   "DOC_OPTION_D"\n\n",
-  "     -$                              Store query results in the array variable 'RETVAL'\n",
+  "     -$                              Store query results in the array variable '"VARNAME_RETVAL"'\n",
   "     -d  $'\\t\\n'                     Delimiter of query result for columns (1st character) and rows (optional 2nd character)",
   "                                     Consider vertical bar as column seperator: -d '|'\n",
   "     -l  <Max number of results>     Default value: Unlimited for stdout.  "STRINGIZE(DEFAULT_MAX_RESULTS)" for results stored in an array\n",
@@ -116,14 +118,16 @@ static int cg_db_builtin_main(const int argc, char *argv[]){
   p->SQLs=argv+optind;
   p->SQLs_l=argc-optind;
   /* From now-on no modifications of p */
-  if (p->retvar){
-      if (!(v->shell_var=find_or_make_array_variable("RETVAL",0))) RETURN_ERROR("Failed find_or_make_array_variable 'RETVAL'\n");
-      if (readonly_p(v->shell_var) || noassign_p(v->shell_var)) RETURN_ERROR("Variable 'RETVAL' read-only or not assignable");
-      if (invisible_p(v->shell_var)) VUNSETATTR(v->shell_var,att_invisible);/* no longer invisible */
+  if (p->retvar && !(v->shell_var=find_or_make_array_variable(VARNAME_RETVAL,0))) report_error(RED_ERROR"Failed find_or_make_array_variable '"VARNAME_RETVAL"'\n");
+  if (v->shell_var && (readonly_p(v->shell_var) || noassign_p(v->shell_var))){ report_error(RED_ERROR"Variable '"VARNAME_RETVAL"' read-only or not assignable");v->shell_var=NULL;}
+  if (v->shell_var){
+      VUNSETATTR(v->shell_var,att_invisible);/* no longer invisible */
       array_flush(array_cell(v->shell_var));
+  }else{
+    set_var_retval_invisible();
   }
 #undef V
-  cg_process_sql(p,v);
+  if (!p->retvar || v->shell_var) cg_process_sql(p,v);
   free(v->result);
   return v->res;
 }
@@ -136,7 +140,6 @@ static int cg_db_builtin(WORD_LIST *list){
   free(argv);
   return r;
 }
-
 struct builtin CONCAT(NAME,_struct)={NAMEQ,cg_db_builtin,BUILTIN_ENABLED,_doc,"\n",USAGE()};
 int CONCAT(NAME,_builtin_load)(char *s){
   PRINT_NOTE("Loading builtin "ANSI_FG_BLUE""STRINGIZE(NAME)""ANSI_RESET"\n");
@@ -149,7 +152,6 @@ void CONCAT(NAME,_builtin_unload)(char *s){
   PRINT_NOTE(ANSI_INVERSE"Unloading builtin " STRINGIZE(NAME) ""ANSI_RESET"\n");
   db_connection_for_path(NULL,NULL);
 }
-
 
 /*  Appending the String s to the growing result string stored in struct_variables->result */
 static bool cg_result_append_column(const int column, const char *s,  int s_l, const struct struct_parameters *p,struct struct_variables *v){

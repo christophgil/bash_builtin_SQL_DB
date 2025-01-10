@@ -1,5 +1,11 @@
-#include <libpq-fe.h>
+/////////////////////////////////////////////////////////////////
+///  COMPILE_MAIN=bashbuiltin_sqlite.c                        ///
+///  Author: Christoph Gille                                  ///
+///  Licence: GNU                                             ///
+///  Bash-builtin Postgresql                                  ///
+/////////////////////////////////////////////////////////////////
 
+#include <libpq-fe.h>
 #define TYPE_DB_CON PGconn
 #define NAME cg_psql
 #include "bashbuiltin_databases.h"

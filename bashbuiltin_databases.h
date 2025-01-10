@@ -1,51 +1,22 @@
 ////////////////////////////////////////////////////////////////
+/// Author: Christoph Gille                                  ///
+/// Licence: GNU                                             ///
 /// COMPILE_MAIN=bashbuiltin_sqlite.c                        ///
 /// This contains the common part and is included by the     ///
 /// specific implementations for different database backends ///
 ////////////////////////////////////////////////////////////////
 
 #define _GNU_SOURCE 1
-// #undef _POSIX_C_SOURCE
-// #define _POSIX_C_SOURCE 1
 
-#include <stdio.h>
-#include <string.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <stdbool.h>
 #include <getopt.h>
-#include <unistd.h>
 #include "bash/loadables.h"
+#include "cg_bashbuiltin.h"
 
 
-
-#define ANSI_RED "\x1B[41m"
-#define ANSI_FG_GREEN "\x1B[32m"
-#define ANSI_FG_RED "\x1B[31m"
-#define ANSI_FG_MAGENTA "\x1B[35m"
-#define ANSI_FG_GRAY "\x1B[30;1m"
-#define ANSI_FG_BLUE "\x1B[34;1m"
-#define ANSI_RESET "\x1B[0m"
-#define ANSI_INVERSE "\x1B[7m"
-#define RED_ERROR ANSI_RED" Error "ANSI_RESET
-
-#define FOR(var,from,to) for(int var=from;var<(to);var++)
-#define RLOOP(var,from) for(int var=from;--var>=0;)
 #define MAX_PATHLEN 1024
 #define CONNECTIONS 8
 #define DEFAULT_MAX_RESULTS 1024
 
-#define STRINGIZE(x) STRINGIZE_INNER(x)
-#define STRINGIZE_INNER(x) #x
-#define NAMEQ  STRINGIZE(NAME)
-#define CONCAT(a, b) CONCAT_INNER(a, b)
-#define CONCAT_INNER(a, b) a ## b
-
-
-#ifndef __FILE_NAME__
-#define __FILE_NAME__ __FILE__
-#endif
 
 #define P(pfx) fprintf(stderr,pfx ANSI_FG_GRAY" %s:%d  "ANSI_RESET,__FILE_NAME__,__LINE__)
 #define PRINT_NOTE(...)  P("Note"),fprintf(stderr,__VA_ARGS__)

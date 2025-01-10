@@ -1,3 +1,10 @@
+/////////////////////////////////////////////////////////////////
+///  COMPILE_MAIN=bashbuiltin_sqlite.c                        ///
+///  Author: Christoph Gille                                  ///
+///  Licence: GNU                                             ///
+///  Bash-builtin Sqlite3                                     ///
+/////////////////////////////////////////////////////////////////
+
 #include <sqlite3.h>
 #define TYPE_DB_CON sqlite3
 #define NAME cg_sqlite
