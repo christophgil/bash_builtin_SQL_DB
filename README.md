@@ -1,6 +1,6 @@
 # bash_builtin_SQL_DB
 
-Bash builtins for using Postgresql and SQLite SQL databases in Bash scripts.
+Bash extensions for Postgresql and SQLite SQL databases in Bash scripts.
 
 
 
