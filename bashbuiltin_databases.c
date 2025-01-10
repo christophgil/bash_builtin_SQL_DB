@@ -80,7 +80,7 @@ static void db_connection_for_path(struct struct_parameters *p, struct struct_va
       cc[cc_l].db_l=n_l;
     }
   }else{
-    PRINT_ERROR("To many connections %d. Recompile with larger value for macro CONNECTIONS!\n",CONNECTIONS);
+    report_error(RED_ERROR"To many connections %d. Recompile %s with larger value for macro CONNECTIONS!\n",CONNECTIONS),__FILE_NAME__;
   }
 }
 /* ================================================================================ */
@@ -160,8 +160,6 @@ void CONCAT(NAME,_builtin_unload)(char *s){
 }
 
 
-
-
 /*  Appending the String s to the growing result string stored in struct_variables->result */
 static bool cg_result_append_column(const int column, const char *s,  int s_l, const struct struct_parameters *p,struct struct_variables *v){
   if (s_l<0) s_l=s?strlen(s):0;
@@ -192,18 +190,16 @@ static bool cg_result_reset(const struct struct_parameters *p,struct struct_vari
   }
   return true;
 }
-
 /*  Appending the String s to the growing result string stored in struct_variables->result */
-static void cg_result_appy(const int row,const struct struct_parameters *p,struct struct_variables *v){
+static void cg_result_apply(const int row,const struct struct_parameters *p,struct struct_variables *v){
   if (*p->retvar){
     if (row>=0){
       if (p->is_single_result){
         if (variable_context) make_local_variable(p->retvar,0);
         char *s=v->result?strdup(v->result):NULL;
-
         SHELL_VAR *var=bind_variable(p->retvar,s,0);
         assert(var->value != s); /* Otherwise I would need strdup() */
-        fprintf(stderr,"p->retvar: %s  s: %s  s: %s %p %p\n",p->retvar,s,var->value, s,var->value );
+        //fprintf(stderr,"p->retvar: %s  s: %s  s: %s %p %p\n",p->retvar,s,var->value, s,var->value );
       }else{
         bind_array_element(v->shell_var,v->result_idx,v->result,0);
       }

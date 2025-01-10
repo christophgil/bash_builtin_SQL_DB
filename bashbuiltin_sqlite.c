@@ -30,7 +30,7 @@ static bool cg_mk_parent_dir(const struct struct_parameters *p){
     if (rp[i]=='/'){
       rp[i]=0;
       if (mkdir(rp,S_IRWXU) && errno!=EEXIST){
-        PRINT_ERROR("Failed creating directory '%s'",rp);
+        report_error(RED_ERROR"Failed creating directory '%s'",rp);
         return false;
       }
       rp[i]='/';

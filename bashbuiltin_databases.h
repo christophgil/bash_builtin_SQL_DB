@@ -28,6 +28,8 @@
 #define ANSI_FG_BLUE "\x1B[34;1m"
 #define ANSI_RESET "\x1B[0m"
 #define ANSI_INVERSE "\x1B[7m"
+#define RED_ERROR ANSI_RED" Error "ANSI_RESET
+
 #define FOR(var,from,to) for(int var=from;var<(to);var++)
 #define RLOOP(var,from) for(int var=from;--var>=0;)
 #define MAX_PATHLEN 1024
@@ -85,4 +87,4 @@ static bool cg_result_reset(const struct struct_parameters *p,struct struct_vari
 
 
 /*  Appending the String s to the growing result string stored in struct_variables->result */
-static void cg_result_appy(const int row,const struct struct_parameters *p,struct struct_variables *v);
+static void cg_result_apply(const int row,const struct struct_parameters *p,struct struct_variables *v);

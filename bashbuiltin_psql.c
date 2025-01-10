@@ -42,7 +42,7 @@ static void cg_process_sql(const struct struct_parameters *p, struct struct_vari
           const char *s=row<0?PQfname(result,col):PQgetvalue(result,row,col);
           if (!cg_result_append_column(col,s,-1,p,v)){ v->res=EXECUTION_FAILURE;PQclear(result);return;}
         }/*col*/
-        cg_result_appy(row,p,v);
+        cg_result_apply(row,p,v);
       }/*row*/
     }/*PGRES_TUPLES_OK*/
     if (result) PQclear(result);

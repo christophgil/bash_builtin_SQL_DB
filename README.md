@@ -91,20 +91,20 @@ First [Install dependencies](./INSTALL_DEPENDENCIES.md)
 
 The enclosed compile script generates shared object files with the ending *.so*.
 
-    compile_C.sh bashbuiltin_cg_psql.c
+    compile_C.sh bashbuiltin_psql.c
 
 or
 
-    compile_C.sh bashbuiltin_cg_sqlite.c
+    compile_C.sh bashbuiltin_sqlite.c
 
 
 Builtins need to be loaded into the Bash instance with *enable*.  The following commands can be run in the
 current interactive shell or can be placed at the top of a Bash script.
 
-    enable -f ~/compiled/bashbuiltin_cg_sqlite.so   cg_sqlite
+    enable -f ~/compiled/bashbuiltin_sqlite.so   cg_sqlite
 
 or
-    enable -f ~/compiled/bashbuiltin_cg_psql.so   cg_psql
+    enable -f ~/compiled/bashbuiltin_psql.so   cg_psql
 
 
 When they are loaded successfully, the *help* command will print the full documentation
