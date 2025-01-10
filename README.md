@@ -99,6 +99,7 @@ current interactive shell or can be placed at the top of a Bash script.
     enable -f ~/compiled/bashbuiltin_sqlite.so   cg_sqlite
 
 or
+
     enable -f ~/compiled/bashbuiltin_psql.so   cg_psql
 
 
