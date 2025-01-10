@@ -20,7 +20,7 @@ overhead.
 
 cg_sqlite and cg_psql are fast bash-builtins for SQLite and Postgresql with less overhead.
 
-**Status**
+**Status**:
 Needs more testing.
 
 
@@ -123,6 +123,7 @@ Other DBs like  MySQL and  DB2 are not (yet) supported. You can send a request-f
 
 # Related:
 
+  - https://github.com/Aloxaf/zsh-sqlite
   - https://github.com/PietroFara/sqlite_lib.bash
   - https://github.com/koffiebaard/bashql
   - https://github.com/cjungmann/bash_sqlite

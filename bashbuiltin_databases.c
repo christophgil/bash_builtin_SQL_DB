@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////
-///  COMPILE_MAIN=bashbuiltin_cg_sqlite.c                     ///
+///  COMPILE_MAIN=bashbuiltin_sqlite.c                        ///
 ///  This contains the common part and is included by the     ///
 ///  specific implementations for different database backends ///
 /////////////////////////////////////////////////////////////////
@@ -157,4 +157,60 @@ int CONCAT(NAME,_builtin_load)(char *s){
 void CONCAT(NAME,_builtin_unload)(char *s){
   PRINT_NOTE(ANSI_INVERSE"Unloading builtin " STRINGIZE(NAME) ""ANSI_RESET"\n");
   db_connection_for_path(NULL,NULL);
+}
+
+
+
+
+/*  Appending the String s to the growing result string stored in struct_variables->result */
+static bool cg_result_append_column(const int column, const char *s,  int s_l, const struct struct_parameters *p,struct struct_variables *v){
+  if (s_l<0) s_l=s?strlen(s):0;
+  const int need=s_l+v->result_l+2;
+  if (need>v->result_capacity){
+    const int c=v->result_capacity=2*need;
+    char *r=v->result?realloc(v->result,c+1):malloc(c+1);
+    if (!r){
+      PRINT_ERROR("realloc size %d\n",c);
+      perror("");
+      v->res=EXECUTION_FAILURE;
+      return false;
+    }
+    v->result=r;
+  }
+  if(column) v->result[v->result_l++]=p->delim_col;
+  if (s) memcpy(v->result+v->result_l,s,s_l);
+  v->result[v->result_l+=s_l]=0;
+  return true;
+}
+
+static bool cg_result_reset(const struct struct_parameters *p,struct struct_variables *v){
+  v->result_l=*v->result=0;
+  const int mx=p->is_single_result?1:p->max_num_results;
+  if (mx && v->result_idx>=mx){
+    PRINT_VERBOSE("Reporting only %d of %d results.\n",v->result_idx,mx);
+    return false;
+  }
+  return true;
+}
+
+/*  Appending the String s to the growing result string stored in struct_variables->result */
+static void cg_result_appy(const int row,const struct struct_parameters *p,struct struct_variables *v){
+  if (*p->retvar){
+    if (row>=0){
+      if (p->is_single_result){
+        if (variable_context) make_local_variable(p->retvar,0);
+        char *s=v->result?strdup(v->result):NULL;
+
+        SHELL_VAR *var=bind_variable(p->retvar,s,0);
+        assert(var->value != s); /* Otherwise I would need strdup() */
+        fprintf(stderr,"p->retvar: %s  s: %s  s: %s %p %p\n",p->retvar,s,var->value, s,var->value );
+      }else{
+        bind_array_element(v->shell_var,v->result_idx,v->result,0);
+      }
+    }
+  }else{
+    fputs(v->result,stdout);
+    putchar(p->delim_row);
+  }
+  if (row>=0) v->result_idx++;
 }

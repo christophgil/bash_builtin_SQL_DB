@@ -2,7 +2,7 @@
 
 #define TYPE_DB_CON PGconn
 #define NAME cg_psql
-#include "bashbuiltin_cg_databases_early_inc.c"
+#include "bashbuiltin_databases.h"
 #define DOC_DEPENDENCIES "libpq-dev"
 #define DOC_STAND_ALONE_PROGRAM "psql"
 #define DOC_DB_TEST "dbname=my_db"
@@ -51,4 +51,4 @@ static void cg_process_sql(const struct struct_parameters *p, struct struct_vari
 static void cg_db_connection_unload(TYPE_DB_CON *connection){
   PQfinish(connection);
 }
-#include "bashbuiltin_cg_databases_inc.c"
+#include "bashbuiltin_cg_databases.c"

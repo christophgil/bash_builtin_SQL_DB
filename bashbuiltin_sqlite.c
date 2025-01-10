@@ -5,7 +5,7 @@
 #define DOC_DB_TEST "/tmp/my_sqlite3_test.db"
 #define DOC_F_OPTION "     -f  <path-of-sqlite3 database>  The db file and parent directories will be created if not yet exists."
 
-#include "bashbuiltin_cg_databases_early_inc.c"
+#include "bashbuiltin_databases.h"
 #define DOC_STAND_ALONE_PROGRAM "sqlite3"
 #define DOC_DB_NAME_OR_FILE "database file"
 #define DOC_OPTION_D "Existing or not yet existing database file. If an absolute path is provided, non-existing  parent folders will be created."
@@ -80,7 +80,7 @@ static void cg_process_sql(const struct struct_parameters *p, struct struct_vari
             s=(char*)sqlite3_column_name(stmt,col);
           }else{
             switch(sqlite3_column_type(stmt,col)){
-            case (SQLITE3_TEXT):   s=(char*)sqlite3_column_text(stmt,col); break;
+            case (SQLITE3_TEXT):   s=(char*)sqlite3_column_text(stmt,col); break; /* The memory space used to hold strings and BLOBs is freed automatically. */
             case (SQLITE_INTEGER): s_l=sprintf(s_stack,"%d", sqlite3_column_int(stmt,col)); break;
             case (SQLITE_FLOAT):   s_l=sprintf(s_stack,"%g", sqlite3_column_double(stmt,col)); break;
             default: break;
@@ -92,7 +92,7 @@ static void cg_process_sql(const struct struct_parameters *p, struct struct_vari
             return;
           }
         }/*col*/
-        cg_result_appy(is_data?row:-1,p,v);
+        cg_result_apply(is_data?row:-1,p,v);
       }/* header or data */
     }/* Loop results*/
     sqlite3_finalize(stmt);
@@ -102,4 +102,4 @@ static void cg_db_connection_unload(TYPE_DB_CON *connection){
   sqlite3_close(connection);
 }
 #define LOADING_BUILTIN_HOOK()  if (!sqlite3_threadsafe()) PRINT_ERROR("Not sqlite3_threadsafe()\n");
-#include "bashbuiltin_cg_databases_inc.c"
+#include "bashbuiltin_databases.c"
