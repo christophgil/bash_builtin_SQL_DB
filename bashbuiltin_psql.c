@@ -1,5 +1,4 @@
 /////////////////////////////////////////////////////////////////
-///  COMPILE_MAIN=bashbuiltin_sqlite.c                        ///
 ///  Author: Christoph Gille                                  ///
 ///  Licence: GNU                                             ///
 ///  Bash-builtin Postgresql                                  ///
@@ -9,6 +8,8 @@
 #define TYPE_DB_CON PGconn
 #define NAME cg_psql
 #include "bashbuiltin_databases.h"
+
+
 #define DOC_DEPENDENCIES "libpq-dev"
 #define DOC_STAND_ALONE_PROGRAM "psql"
 #define DOC_DB_TEST "dbname=my_db"
@@ -37,6 +38,7 @@ static void cg_db_connect(const struct struct_parameters *p, struct struct_varia
 static void cg_process_sql(const struct struct_parameters *p, struct struct_variables *v){
   FOR(j,0,p->SQLs_l){
     PGresult *result=PQexec(v->connection,p->SQLs[j]);
+    if (!cg_starts_with_select(p,p->SQLs[j])) continue;
     ExecStatusType resStatus=PQresultStatus(result);
     if (resStatus!=PGRES_TUPLES_OK) {
       PRINT_ERROR("Error while executing the query: %s\n", PQerrorMessage(v->connection));
@@ -48,13 +50,15 @@ static void cg_process_sql(const struct struct_parameters *p, struct struct_vari
           const char *s=row<0?PQfname(result,col):PQgetvalue(result,row,col);
           if (!cg_result_append_column(col,s,-1,p,v)){ v->res=EXECUTION_FAILURE;PQclear(result);return;}
         }/*col*/
-        cg_result_apply(row,p,v);
+        if (cg_result_apply(row,p,v)) break;
       }/*row*/
     }/*PGRES_TUPLES_OK*/
     if (result) PQclear(result);
+
   }/*SQLs*/
+
 }
 static void cg_db_connection_unload(TYPE_DB_CON *connection){
   PQfinish(connection);
 }
-#include "bashbuiltin_cg_databases.c"
+#include "bashbuiltin_databases.c"

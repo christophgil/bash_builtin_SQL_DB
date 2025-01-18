@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////
 /// Author: Christoph Gille                                  ///
 /// Licence: GNU                                             ///
-/// COMPILE_MAIN=bashbuiltin_sqlite.c                        ///
+/// COMPILE_MAIN=bashbuiltin_psql.c                          ///
 /// This contains the common part and is included by the     ///
 /// specific implementations for different database backends ///
 ////////////////////////////////////////////////////////////////
@@ -12,23 +12,19 @@
 #include "bash/loadables.h"
 #include "cg_bashbuiltin.h"
 
+#define WITH_ASSOCARRAY 0
 
 #define MAX_PATHLEN 1024
 #define CONNECTIONS 8
 #define DEFAULT_MAX_RESULTS 1024
 
 
-#define P(pfx) fprintf(stderr,pfx ANSI_FG_GRAY" %s:%d  "ANSI_RESET,__FILE_NAME__,__LINE__)
-#define PRINT_NOTE(...)  P("Note"),fprintf(stderr,__VA_ARGS__)
-#define PRINT_VERBOSE(...) if (p->verbose) PRINT_NOTE(__VA_ARGS__)
-#define PRINT_DEBUG(...) if (p->verbose>1) P("Debug"),fprintf(stderr,__VA_ARGS__)
-#define PRINT_ERROR(...) P(ANSI_RED"ERROR "ANSI_RESET),fprintf(stderr,__VA_ARGS__)
-#define RETURN_ERROR(...) {PRINT_ERROR(__VA_ARGS__); return EXECUTION_FAILURE;}
 
 
 /* After initialization this will not change */
 struct struct_parameters{
   bool retvar;                  /* Assign variable RETVAL rather than writing to stdout */
+    bool log_sql_to_stderr;
   int max_num_results;
   bool is_header;               /* Print a line with column names */
   char delim_col, delim_row;      /* Normally \t and \n */
@@ -45,8 +41,11 @@ struct struct_variables{
   int result_capacity;  /* Allocated memory */
   int result_l;         /* Current lengthe of result */
   int result_idx;       /* Count results */
+        bool set_variable_retval_done; /* Already set RETVAL  */
   int res;              /* Return status. 0 is success */
+  #if WITH_ASSOCARRAY
   SHELL_VAR *shell_var; /* Shell variable to store the SQL result or empty String */
+  #endif
   TYPE_DB_CON *connection;
 };
 /*  Appending the String s to the growing result string stored in struct_variables->result */
@@ -57,4 +56,7 @@ static bool cg_result_reset(const struct struct_parameters *p,struct struct_vari
 
 
 /*  Appending the String s to the growing result string stored in struct_variables->result */
-static void cg_result_apply(const int row,const struct struct_parameters *p,struct struct_variables *v);
+static bool cg_result_apply(const int row,const struct struct_parameters *p,struct struct_variables *v);
+
+/* Output will be generated only if query starts with 'select' (case insensitive) */
+static bool cg_starts_with_select(const struct struct_parameters *p,const char* sql);

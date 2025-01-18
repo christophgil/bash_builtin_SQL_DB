@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////
-///  COMPILE_MAIN=bashbuiltin_sqlite.c                        ///
+///  COMPILE_MAIN=bashbuiltin_psql.c                          ///
 ///  Author: Christoph Gille                                  ///
 ///  Licence: GNU                                             ///
 ///  This contains the common part and is included by the     ///
@@ -10,7 +10,7 @@
   "        "NAMEQ" -D \"$db\"  'CREATE TABLE IF NOT EXISTS tbl (id int,t TEXT);'\n"\
   "        "NAMEQ" -D \"$db\"  \"INSERT INTO tbl(id,t) VALUES($RANDOM,'$(date)');\"\n"\
   "        "NAMEQ" -D \"$db\"  'SELECT * FROM tbl;'  # Result to stdout\n"\
-  "        "NAMEQ" -D \"$db\"  -$  'SELECT * FROM tbl;'; echo \"${array_variable[@]}\"  # Results captured in array variable\n"\
+  "        Not yet supported: "NAMEQ" -D \"$db\"  -$  'SELECT * FROM tbl;'; echo \"${array_variable[@]}\"  # Results captured in array variable\n"\
   "        "NAMEQ" -D \"$db\"  -$  -1  'SELECT * FROM tbl;'; echo \"$plain_variable\";  # Single result in variable\n"
 
 
@@ -23,7 +23,7 @@ static char *_doc[]={
   "  The maximum number of different databases is encoded in the macro CONNECTIONS and can be increased.",
   "  Advantages of , "NAMEQ" in scripts:",
   "      - Improved performance because there is no overhead by starting an external program and establishing a connection to a database.",
-  "      - The result of queries can be captured directly in array or plain variables.\n",
+  "      - The result of queries can be captured directly in the  variable RETVAL.\n",
   "INSTALLATION",
   "  Install packages:",
   "     - gcc or clang or  build-essential",
@@ -36,10 +36,10 @@ static char *_doc[]={
   "     enable -f ~/compiled/file.so   "NAMEQ"\n",
   "OPTIONS\n",
   "     -D  <"DOC_DB_NAME_OR_FILE">   "DOC_OPTION_D"\n\n",
-  "     -$                              Store query results in the array variable '"VARNAME_RETVAL"'\n",
+  "     -$                              Store query results in the variable '"VARNAME_RETVAL"'\n",
   "     -d  $'\\t\\n'                     Delimiter of query result for columns (1st character) and rows (optional 2nd character)",
   "                                     Consider vertical bar as column seperator: -d '|'\n",
-  "     -l  <Max number of results>     Default value: Unlimited for stdout.  "STRINGIZE(DEFAULT_MAX_RESULTS)" for results stored in an array\n",
+  "     -l  <Max number of results>     Default value: Unlimited for stdout.  "STRINGIZE(DEFAULT_MAX_RESULTS)". Returning multiple results in array variables is not yet supposed.\n",
   "     -1                              Print the first result only. Same as '-l 1'. Consider to combine with the SQL clause 'LIMIT 1'\n",
   "     -V                              Print version.  Can be used to check available of the builtin\n",
   "     -v                              Increase verbosity. Can be repeated\n",
@@ -87,18 +87,23 @@ static int cg_db_builtin_main(const int argc, char *argv[]){
   struct struct_parameters para={.delim_col='\t', .delim_row='\n', .verbose=0 }, *p=&para;
   optind=0;
 #define V() ANSI_FG_BLUE"%s"ANSI_RESET
-  for (int opt; (opt=getopt(argc,argv,"HD:d:1l:vV:h$"))!=-1;){
+  for (int opt; (opt=getopt(argc,argv,"HD:d:1l:vVh$"))!=-1;){
     switch(opt){
     case '$':
       p->retvar=true;
       if (!p->max_num_results) p->max_num_results=DEFAULT_MAX_RESULTS;
       break;
-    case 'd':
-      if (*optarg){
-        p->delim_col=*optarg;
-        if (optarg[1]) p->delim_row=optarg[1];
+    case 'd':{
+      const int len=strlen(optarg);
+      if (!len || len>2){
+        report_error("\n"RED_ERROR NAMEQ " -d separators    The separator argument has length %d. However length  1 or 2 is expected. \n",len);
+        EXIT_SHELL_RETURN();
       }
+      p->delim_col=*optarg;
+      if (optarg[1]) p->delim_row=optarg[1];
+    }
       break;
+          case 'e': p->log_sql_to_stderr=true; break;
     case 'H': p->is_header=true; break;
     case 'D': if (sizeof(p->db)-1<=strlen(optarg)) RETURN_ERROR("Option  -D '"V()"' exceeds length %lu\n",optarg,sizeof(p->db)-1);
       strcpy(p->db,optarg); break;
@@ -107,28 +112,51 @@ static int cg_db_builtin_main(const int argc, char *argv[]){
     case 'V': PRINT_NOTE("Version 0\n"); return 0;
     case 'v': p->verbose++; PRINT_NOTE("verbose: %d\n",p->verbose); break;
     case 'h': builtin_usage(); return EX_USAGE;
-    default: builtin_usage();RETURN_ERROR("Wrong option -%c\n",opt);
+    default:
+      builtin_usage();
+      report_error(RED_ERROR"Wrong option -%c\n",opt);
+      EXIT_SHELL_RETURN();
     }
   }
   PRINT_DEBUG("db: '"V()"'  retvar: "V()"  delim_col: %d delim_row: %d\n",p->db,p->retvar?"Yes":"No",p->delim_col,p->delim_row);
-  if (!*p->db){ builtin_usage(); RETURN_ERROR("Please specify "DOC_DB_NAME_OR_FILE" with option -D\n"); }
+  if (!*p->db){ builtin_usage(); report_error(RED_ERROR"Please specify "DOC_DB_NAME_OR_FILE" with option -D\n"); EXIT_SHELL_RETURN();}
   struct struct_variables var={.result_capacity=1024,.result=malloc(1024)}, *v=&var;
   db_connection_for_path(p,v);
-  if (!v->connection){ RETURN_ERROR("Failed to connect to the database  '"V()"'\n",p->db); }
+  if (!v->connection){
+    report_error(RED_ERROR"Failed to connect to the database  '"V()"'\n",p->db);
+    EXIT_SHELL_RETURN();
+  }
   p->SQLs=argv+optind;
   p->SQLs_l=argc-optind;
   /* From now-on no modifications of p */
-  if (p->retvar && !(v->shell_var=find_or_make_array_variable(VARNAME_RETVAL,0))) report_error(RED_ERROR"Failed find_or_make_array_variable '"VARNAME_RETVAL"'\n");
-  if (v->shell_var && (readonly_p(v->shell_var) || noassign_p(v->shell_var))){ report_error(RED_ERROR"Variable '"VARNAME_RETVAL"' read-only or not assignable");v->shell_var=NULL;}
-  if (v->shell_var){
+#if WITH_ASSOCARRAY
+  if (p->retvar){
+    if (!(v->shell_var=find_or_make_array_variable(VARNAME_RETVAL,0))){
+      report_error(RED_ERROR"Failed find_or_make_array_variable '"VARNAME_RETVAL"'\n");
+      EXIT_SHELL_RETURN();
+    }
+    if (v->shell_var && (readonly_p(v->shell_var) || noassign_p(v->shell_var))){
+      report_error(RED_ERROR"Variable '"VARNAME_RETVAL"' read-only or not assignable");v->shell_var=NULL;
+      EXIT_SHELL_RETURN();
+    }
+    if (v->shell_var){
       VUNSETATTR(v->shell_var,att_invisible);/* no longer invisible */
       array_flush(array_cell(v->shell_var));
-  }else{
-    set_var_retval_invisible();
+      convert_var_to_array(v->shell_var);
+      bind_array_element(v->shell_var,0,"",0);
+    }
   }
+#endif
+  set_var_retval_invisible();
 #undef V
-  if (!p->retvar || v->shell_var) cg_process_sql(p,v);
+  cg_process_sql(p,v);
   free(v->result);
+  if (!v->set_variable_retval_done){
+    #if WITH_ASSOCARRAY
+    #else
+        bind_global_variable(VARNAME_RETVAL,"",0);
+    #endif
+  }
   return v->res;
 }
 
@@ -161,6 +189,7 @@ static bool cg_result_append_column(const int column, const char *s,  int s_l, c
     const int c=v->result_capacity=2*need;
     char *r=v->result?realloc(v->result,c+1):malloc(c+1);
     if (!r){
+      report_error("");
       PRINT_ERROR("realloc size %d\n",c);
       perror("");
       v->res=EXECUTION_FAILURE;
@@ -184,14 +213,30 @@ static bool cg_result_reset(const struct struct_parameters *p,struct struct_vari
   return true;
 }
 /*  Appending the String s to the growing result string stored in struct_variables->result */
-static void cg_result_apply(const int row,const struct struct_parameters *p,struct struct_variables *v){
+static bool cg_result_apply(const int row,const struct struct_parameters *p,struct struct_variables *v){
   if (p->retvar){
-    if (row>=0){
-        bind_array_element(v->shell_var,v->result_idx,v->result,0);
+    if (row>=0){ /* Not header row==-1 */
+#if WITH_ASSOCARRAY
+      bind_array_element(v->shell_var,v->result_idx,v->result,0);
+#else
+      bind_global_variable(VARNAME_RETVAL,v->result,0);
+      v->set_variable_retval_done=true;
+      return true;
+#endif
     }
   }else{
     fputs(v->result,stdout);
     putchar(p->delim_row);
   }
   if (row>=0) v->result_idx++;
+  return false;
+}
+static bool cg_starts_with_select(const struct struct_parameters *p,const char* sql){
+  assert(sql!=NULL);
+      if (p->log_sql_to_stderr) fprintf(stderr,"%s",sql);
+  const char *s=sql;
+  while (*s==' ') s++;
+
+
+  return !strncasecmp(s,"SELECT ",7);
 }

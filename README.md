@@ -118,7 +118,9 @@ or
 Other DBs like  MySQL and  DB2 are not (yet) supported. You can send a request-for-feature.
 
 # Related:
-
+  - coproc
+     + https://stackoverflow.com/questions/18726499/how-to-use-coproc-to-interact-with-another-command-driven-program
+     + https://www.michael-joost.de/bash_db.html
   - https://github.com/Aloxaf/zsh-sqlite
   - https://github.com/PietroFara/sqlite_lib.bash
   - https://github.com/koffiebaard/bashql

@@ -69,6 +69,7 @@ static void cg_process_sql(const struct struct_parameters *p, struct struct_vari
   FOR(j,0,p->SQLs_l){
     sqlite3_stmt *stmt={0};
     int res;
+    const bool is_select=cg_starts_with_select(p,p->SQLs[j]);
     for (int retry=0; wait_busy_sqlite3(retry++,res=sqlite3_prepare_v2(v->connection,p->SQLs[j],-1,&stmt,NULL),p););
     if (res!=SQLITE_OK){
       PRINT_ERROR("sqlite3_prepare_v2(con,'%s')", sqlite3_errmsg(v->connection));
@@ -76,6 +77,7 @@ static void cg_process_sql(const struct struct_parameters *p, struct struct_vari
     }
     for(int row=0;;row++){
       for (int retry=0; wait_busy_sqlite3(retry++,res=sqlite3_step(stmt),p););
+      if (!is_select) continue;
       const int cols=sqlite3_column_count(stmt);
       if (res==SQLITE_DONE) break;
       FOR(is_data,!row && p->is_header?0:1,2){  /* is_data == 0 means print column names  */
