@@ -36,7 +36,7 @@ Needs more testing.
 
     -D  <database file or connection info, respectively>
 
-    -$                            Store query results in the array variable 'RETVAL' instead of printing to stdout.
+    -$                            Store query results in the variable 'RETVAL' instead of printing to stdout.
 
     -d  $'\t\n'                   Delimiter of query result for columns (1st character) and rows (optional 2nd character)
                                   Consider vertical bar as column separator: -d '|'",
@@ -115,7 +115,10 @@ or
 
 # Limitations
 
-Other DBs like  MySQL and  DB2 are not (yet) supported. You can send a request-for-feature.
+ - Currently only one record of SELECT queries are stored in the variable *RETVAL*.
+   ARRAYS of multiple results has caused problems and is currently not yet supported
+
+ - Other DBs like  MySQL and  DB2 are not (yet) supported. You can send a request-for-feature.
 
 # Related:
   - coproc
